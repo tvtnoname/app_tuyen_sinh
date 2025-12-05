@@ -261,7 +261,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
     
     // Thêm chiều rộng cho các cột ngày tháng
     for (int i = 0; i < _dates.length; i++) {
-      columnWidths[i + 2] = const FixedColumnWidth(100);
+      columnWidths[i + 2] = const FixedColumnWidth(120);
     }
 
     return Scrollbar(
@@ -269,7 +269,7 @@ class _AttendanceHistoryScreenState extends State<AttendanceHistoryScreen> {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: SizedBox(
-          width: 230.0 + (_dates.length * 100.0), // Tổng chiều rộng bảng
+          width: 230.0 + (_dates.length * 120.0), // Tổng chiều rộng bảng
           child: Column(
             children: [
               // Header cố định (Sticky Header)

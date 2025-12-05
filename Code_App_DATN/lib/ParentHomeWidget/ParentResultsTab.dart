@@ -849,6 +849,16 @@ class ParentResultsTabState extends State<ParentResultsTab> with SingleTickerPro
 
     final displayList = _attendanceTabIndex == 0 ? filteredCurrentAttendances : filteredCompletedAttendances;
 
+    final availableClasses = (_attendanceTabIndex == 0 
+            ? _getAvailableCurrentClassesForFilter() 
+            : _getAvailableClassesForFilter()).toSet().toList();
+
+    // Validate _selectedAttendanceClassId
+    if (_selectedAttendanceClassId != null && 
+        !availableClasses.any((cls) => cls['id'] == _selectedAttendanceClassId)) {
+      _selectedAttendanceClassId = availableClasses.isNotEmpty ? availableClasses.first['id'] : null;
+    }
+
     return Column(
       children: [
         // Toggle Buttons
@@ -905,8 +915,7 @@ class ParentResultsTabState extends State<ParentResultsTab> with SingleTickerPro
         ),
 
         // Class Filter (for both "Đang học" and "Đã học")
-        if ((_attendanceTabIndex == 0 && _currentCourses.isNotEmpty) || 
-            (_attendanceTabIndex == 1 && _completedCourses.isNotEmpty))
+        if (availableClasses.isNotEmpty)
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             color: Colors.grey[50],
@@ -926,24 +935,20 @@ class ParentResultsTabState extends State<ParentResultsTab> with SingleTickerPro
                       child: DropdownButton<int>(
                         isDense: true,
                         value: _selectedAttendanceClassId,
-                        items: [
-                          ...(_attendanceTabIndex == 0 
-                            ? _getAvailableCurrentClassesForFilter() 
-                            : _getAvailableClassesForFilter()).map((cls) {
-                            return DropdownMenuItem<int>(
-                              value: cls['id'],
-                              child: ConstrainedBox(
-                                constraints: const BoxConstraints(maxWidth: 150),
-                                child: Text(
-                                  cls['name'], 
-                                  style: const TextStyle(fontSize: 12),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
-                                ),
+                        items: availableClasses.map((cls) {
+                          return DropdownMenuItem<int>(
+                            value: cls['id'],
+                            child: ConstrainedBox(
+                              constraints: const BoxConstraints(maxWidth: 150),
+                              child: Text(
+                                cls['name'], 
+                                style: const TextStyle(fontSize: 12),
+                                overflow: TextOverflow.ellipsis,
+                                maxLines: 1,
                               ),
-                            );
-                          }),
-                        ],
+                            ),
+                          );
+                        }).toList(),
                         onChanged: (val) {
                           setState(() {
                             _selectedAttendanceClassId = val;

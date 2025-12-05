@@ -11,7 +11,7 @@ class AuthService {
 
   final String baseUrl;
 
-  AuthService({this.baseUrl = 'http://192.168.178.238:8080/api/auth'});
+  AuthService({this.baseUrl = 'http://192.168.1.218:8080/api/auth'});
 
   /// POST /api/auth/login
   Future<User> login(String username, String password) async {
@@ -219,7 +219,9 @@ class AuthService {
               // Nếu tồn tại 'user' lồng nhau, ưu tiên nó
 
               if (data['user'] is Map<String, dynamic>) {
-                source = Map<String, dynamic>.from(data['user']);
+                // Use data as source to preserve outer fields (like schoolName in student object)
+                // User.fromJson handles nested 'user' merging.
+                source = Map<String, dynamic>.from(data);
               } else if (data['parent'] is Map<String, dynamic>) {
                 // Một số phản hồi có thể lồng parent -> user
 

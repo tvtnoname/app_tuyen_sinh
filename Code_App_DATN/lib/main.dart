@@ -33,6 +33,7 @@ class MyApp extends StatelessWidget {
       title: 'App Quản lý tuyển sinh',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+        fontFamily: 'Times New Roman',
       ),
       initialRoute: '/',
       onGenerateRoute: (RouteSettings settings) {

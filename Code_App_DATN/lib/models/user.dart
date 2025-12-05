@@ -35,6 +35,7 @@ class User {
   final DateTime? dob;
   final String? avatarUrl;
   final String? address;
+  final String? schoolName;
   final String? status;
   final Map<String, dynamic>? params;
 
@@ -57,6 +58,7 @@ class User {
     this.dob,
     this.avatarUrl,
     this.address,
+    this.schoolName,
     this.status,
     this.params,
     this.token,
@@ -142,6 +144,7 @@ class User {
       dob: parseDate(src['dob'] ?? src['birthDate'] ?? src['admissionDate']),
       avatarUrl: src['avatarUrl'] ?? src['avatar_url'] ?? src['avatar'],
       address: src['address'] ?? src['location'],
+      schoolName: src['schoolName'] ?? src['school_name'],
       status: src['status']?.toString(),
       params: src['params'] is Map ? Map<String, dynamic>.from(src['params']) : null,
       token: token?.toString(),
@@ -163,6 +166,7 @@ class User {
     if (dob != null) m['dob'] = dob!.toIso8601String();
     if (avatarUrl != null) m['avatarUrl'] = avatarUrl;
     if (address != null) m['address'] = address;
+    if (schoolName != null) m['schoolName'] = schoolName;
     if (status != null) m['status'] = status;
     if (params != null) m['params'] = params;
     if (createdAt != null) m['createdAt'] = createdAt!.toIso8601String();
@@ -185,6 +189,7 @@ class User {
     DateTime? dob,
     String? avatarUrl,
     String? address,
+    String? schoolName,
     String? status,
     Map<String, dynamic>? params,
     String? token,
@@ -203,6 +208,7 @@ class User {
       dob: dob ?? this.dob,
       avatarUrl: avatarUrl ?? this.avatarUrl,
       address: address ?? this.address,
+      schoolName: schoolName ?? this.schoolName,
       status: status ?? this.status,
       params: params ?? this.params,
       token: token ?? this.token,
@@ -230,6 +236,6 @@ class User {
 
   @override
   String toString() {
-    return 'User(id: $id, userName: $userName, fullName: $fullName, email: $email, phone: $phone, role: $role, token: ${token != null ? '***' : 'null'})';
+    return 'User(id: $id, userName: $userName, fullName: $fullName, email: $email, phone: $phone, role: $role, schoolName: $schoolName, token: ${token != null ? '***' : 'null'})';
   }
 }

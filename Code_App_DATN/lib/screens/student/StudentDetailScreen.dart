@@ -1,5 +1,6 @@
 import 'package:app_quan_ly_tuyen_sinh/services/teacher/teacher_service.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class StudentDetailScreen extends StatefulWidget {
   final Map<String, dynamic> studentData;
@@ -25,6 +26,29 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
     super.initState();
     _studentData = widget.studentData;
     _loadStudentDetail();
+  }
+
+  /// Helper to format date
+  String _formatDate(String? dateStr) {
+    if (dateStr == null || dateStr.isEmpty) return 'Chưa cập nhật';
+    try {
+      // Handle potential existing formats
+      DateTime? date;
+      try {
+        date = DateTime.parse(dateStr);
+      } catch (_) {
+        try {
+          date = DateFormat('dd-MM-yyyy').parse(dateStr);
+        } catch (_) {}
+      }
+      
+      if (date != null) {
+        return DateFormat('dd-MM-yyyy').format(date);
+      }
+      return dateStr;
+    } catch (e) {
+      return dateStr;
+    }
   }
 
   /// Tải thông tin chi tiết của học viên từ API.
@@ -130,7 +154,7 @@ class _StudentDetailScreenState extends State<StudentDetailScreen> {
                       padding: const EdgeInsets.all(16.0),
                       child: Column(
                         children: [
-                          _buildInfoRow('Ngày sinh', _studentData['dob'] ?? _studentData['user']?['dob'] ?? _studentData['dateOfBirth'] ?? 'Chưa cập nhật'),
+                          _buildInfoRow('Ngày sinh', _formatDate(_studentData['dob'] ?? _studentData['user']?['dob'] ?? _studentData['dateOfBirth'])),
                           const Divider(height: 16),
                           _buildInfoRow('Giới tính', _studentData['gender'] ?? _studentData['user']?['gender'] ?? 'Chưa cập nhật'),
                           const Divider(height: 16),

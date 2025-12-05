@@ -2,6 +2,7 @@ import '../../StudentHomeWidget/Home.dart';
 import '../../StudentHomeWidget/Profile.dart';
 import '../../StudentHomeWidget/Schedule.dart';
 import '../../services/auth/auth_service.dart';
+import '../common/ChatScreen.dart'; // Import ChatScreen
 import 'package:flutter/material.dart';
 import '../../models/user.dart';
 
@@ -90,28 +91,120 @@ class _StudentHomeState extends State<StudentHomeScreen> {
         }
         return true; // Thoát ứng dụng (hoặc thu nhỏ)
       },
-      child: Scaffold(
-        body: SafeArea(
-          child: IndexedStack(
-            index: _selectedIndex,
-            children: [
-              Home(key: _homeKey, user: _currentUser),
-              Schedule(key: _scheduleScreenKey, user: _currentUser),
-              Profile(key: _profileKey, user: _currentUser, onProfileUpdated: _reloadUserData),
+      child: DraggableChatButton(
+        child: Scaffold(
+          body: SafeArea(
+            child: IndexedStack(
+              index: _selectedIndex,
+              children: [
+                Home(key: _homeKey, user: _currentUser),
+                Schedule(key: _scheduleScreenKey, user: _currentUser),
+                Profile(key: _profileKey, user: _currentUser, onProfileUpdated: _reloadUserData),
+              ],
+            ),
+          ),
+          bottomNavigationBar: BottomNavigationBar(
+            items: const [
+              BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
+              BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Lịch học'),
+              BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Thông tin'),
             ],
+            currentIndex: _selectedIndex,
+            onTap: _onItemTapped,
+            selectedItemColor: Colors.amber[800],
           ),
         ),
-        bottomNavigationBar: BottomNavigationBar(
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Trang chủ'),
-            BottomNavigationBarItem(icon: Icon(Icons.calendar_today), label: 'Lịch học'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Thông tin'),
-          ],
-          currentIndex: _selectedIndex,
-          onTap: _onItemTapped,
-          selectedItemColor: Colors.amber[800],
-        ),
       ),
+    );
+  }
+}
+
+class DraggableChatButton extends StatefulWidget {
+  final Widget child;
+  const DraggableChatButton({super.key, required this.child});
+
+  @override
+  State<DraggableChatButton> createState() => _DraggableChatButtonState();
+}
+
+class _DraggableChatButtonState extends State<DraggableChatButton> {
+  Offset _fabOffset = Offset.zero;
+  bool _isFabInit = false;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!_isFabInit) {
+      final size = MediaQuery.of(context).size;
+      _fabOffset = Offset(size.width - 80, size.height - 160);
+      _isFabInit = true;
+    }
+
+    return Stack(
+      children: [
+        widget.child,
+        Positioned(
+          left: _fabOffset.dx,
+          top: _fabOffset.dy,
+          child: GestureDetector(
+            onPanUpdate: (details) {
+              setState(() {
+                final size = MediaQuery.of(context).size;
+                double dx = _fabOffset.dx + details.delta.dx;
+                double dy = _fabOffset.dy + details.delta.dy;
+                // Adjust clamp for larger size and text
+                dx = dx.clamp(0.0, size.width - 80);
+                dy = dy.clamp(0.0, size.height - 120);
+                _fabOffset = Offset(dx, dy);
+              });
+            },
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Hỗ trợ 24/7',
+                  style: TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.blue,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Material(
+                  color: Colors.transparent,
+                  shape: const CircleBorder(),
+                  clipBehavior: Clip.hardEdge,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => const ChatScreen()),
+                      );
+                    },
+                    child: Container(
+                      width: 70, // Restored to 70
+                      height: 70,
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        image: DecorationImage(
+                          image: AssetImage('assets/images/chat_bot.png'),
+                          fit: BoxFit.cover,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black26,
+                            blurRadius: 8,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

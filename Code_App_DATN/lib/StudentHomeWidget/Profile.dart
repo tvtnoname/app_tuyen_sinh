@@ -10,6 +10,30 @@ import '../../services/student/registered_courses_service.dart';
 import '../../services/student/student_service.dart';
 import '../../screens/student/StudentNotificationScreen.dart';
 
+const List<String> schoolOptions = [
+  'Trường THCS Đoàn Thị Điểm',
+  'THPT Nguyễn Hữu Cầu',
+  'Trường THCS Nguyễn Du',
+  'Trường THPT Mạc Đĩnh Chi',
+  'Trường THCS Bạch Đằng',
+  'Trường THPT Lê Quý Đôn',
+  'Trường THCS Á Châu',
+  'Trường THPT Trần Phú',
+  'Trường THCS Việt Úc',
+  'Trường THPT Phú Nhuận',
+  'Trường THCS Trần Văn Ơn',
+  'Trường THPT Bùi Thị Xuân',
+  'Trường THCS Hai Bà Trưng',
+  'Trường THPT Nguyễn Hữu Huân',
+  'Trường THCS Nguyễn Hữu Thọ',
+  'Trường THPT Nguyễn Thị Minh Khai',
+  'Trường THCS Colette',
+  'Trường THPT Gia Định',
+  'Trường THCS Lê Quý Đôn',
+  'Trường THPT Nguyễn Thượng Hiền',
+  'Trường khác',
+];
+
 class Profile extends StatefulWidget {
   final User user;
   final VoidCallback? onProfileUpdated;
@@ -53,6 +77,7 @@ class ProfileScreenState extends State<Profile> {
         'gender': widget.user.gender == Gender.male ? 'MALE' : (widget.user.gender == Gender.female ? 'FEMALE' : null),
         'avatarUrl': widget.user.avatarUrl,
         'role': widget.user.role,
+        'schoolName': widget.user.schoolName,
       };
     }
   }
@@ -121,6 +146,7 @@ class ProfileScreenState extends State<Profile> {
            _currentUserMap['phone'] = newUser.phone;
            _currentUserMap['address'] = newUser.address;
            _currentUserMap['avatarUrl'] = newUser.avatarUrl;
+           _currentUserMap['schoolName'] = newUser.schoolName;
         }
       });
       widget.onProfileUpdated?.call();
@@ -306,6 +332,7 @@ class _PersonalInfoTabState extends State<PersonalInfoTab> {
   late TextEditingController _addressCtrl;
   DateTime? _dob;
   String? _gender;
+  String? _schoolName;
   bool _isPatching = false;
 
   final AuthService _authService = AuthService();
@@ -330,6 +357,35 @@ class _PersonalInfoTabState extends State<PersonalInfoTab> {
     if (g == 'MALE' || g == 'M') _gender = 'MALE';
     else if (g == 'FEMALE' || g == 'F') _gender = 'FEMALE';
     else _gender = null;
+    _schoolName = m['schoolName']?.toString();
+  }
+
+  @override
+  void didUpdateWidget(PersonalInfoTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.currentUserMap != oldWidget.currentUserMap) {
+      final m = widget.currentUserMap;
+      _fullNameCtrl.text = (m['fullName'] ?? m['userName'])?.toString() ?? '';
+      _emailCtrl.text = (m['email'] ?? '')?.toString() ?? '';
+      _phoneCtrl.text = (m['phone'] ?? '')?.toString() ?? '';
+      _addressCtrl.text = (m['address'] ?? '')?.toString() ?? '';
+      
+      final dobRaw = m['dob'] ?? m['dateOfBirth'] ?? m['birthDate'];
+      if (dobRaw != null) {
+        try {
+          _dob = DateTime.tryParse(dobRaw.toString());
+        } catch (_) {
+          _dob = null;
+        }
+      }
+      
+      final g = (m['gender'] ?? '').toString().toUpperCase();
+      if (g == 'MALE' || g == 'M') _gender = 'MALE';
+      else if (g == 'FEMALE' || g == 'F') _gender = 'FEMALE';
+      else _gender = null;
+      
+      _schoolName = m['schoolName']?.toString();
+    }
   }
 
   @override
@@ -402,6 +458,19 @@ class _PersonalInfoTabState extends State<PersonalInfoTab> {
                     ],
                   ),
                   const SizedBox(height: 8),
+                  DropdownButtonFormField<String>(
+                    value: schoolOptions.contains(_schoolName) ? _schoolName : null,
+                    isExpanded: true,
+                    items: schoolOptions.map((school) {
+                      return DropdownMenuItem(
+                        value: school,
+                        child: Text(school, overflow: TextOverflow.ellipsis),
+                      );
+                    }).toList(),
+                    onChanged: (v) => setDialogState(() => _schoolName = v),
+                    decoration: const InputDecoration(labelText: 'Tên trường'),
+                  ),
+                  const SizedBox(height: 8),
                   TextField(controller: _addressCtrl, decoration: const InputDecoration(labelText: 'Địa chỉ')),
                 ],
               ),
@@ -459,6 +528,7 @@ class _PersonalInfoTabState extends State<PersonalInfoTab> {
 
 
       final Map<String, dynamic> body = {
+        if (_schoolName != null) 'schoolName': _schoolName,
         'user': {
           'fullName': fullName,
           if (email.isNotEmpty) 'email': email,
@@ -467,13 +537,8 @@ class _PersonalInfoTabState extends State<PersonalInfoTab> {
           if (dobStr != null) 'dob': dobStr,
           if (address.isNotEmpty) 'address': address,
         },
-        'student': {
-          'code': widget.currentUserMap['userName'] ?? '',
-          'updateAt': DateTime.now().toIso8601String(),
-          'remark': 'Updated profile at ${DateTime.now()}' // Ghi chú cập nhật
-
-
-        }
+        // Các trường khác nếu cần thiết có thể thêm vào root hoặc user tùy API
+        // Dựa trên Postman: schoolName ở root, user chứa thông tin cá nhân
       };
 
       final resp = await http.patch(Uri.parse(url), headers: headers, body: jsonEncode(body)).timeout(const Duration(seconds: 12));
@@ -489,6 +554,7 @@ class _PersonalInfoTabState extends State<PersonalInfoTab> {
           if (_gender != null) 'gender': _gender,
           if (dobStr != null) 'dob': dobStr,
           if (address.isNotEmpty) 'address': address,
+          if (_schoolName != null) 'schoolName': _schoolName,
         };
         widget.onPatched?.call(optimisticData);
 
@@ -539,6 +605,7 @@ class _PersonalInfoTabState extends State<PersonalInfoTab> {
             _InfoRow(icon: Icons.person_outline, label: 'Họ và tên', value: (widget.currentUserMap['fullName'] ?? widget.currentUserMap['userName'] ?? 'N/A').toString()),
             _InfoRow(icon: Icons.cake_outlined, label: 'Ngày sinh', value: _formatDob()),
             _InfoRow(icon: Icons.wc_outlined, label: 'Giới tính', value: ((widget.currentUserMap['gender'] ?? '') == 'MALE') ? 'Nam' : (((widget.currentUserMap['gender'] ?? '') == 'FEMALE') ? 'Nữ' : 'N/A')),
+            _InfoRow(icon: Icons.school_outlined, label: 'Trường', value: (widget.currentUserMap['schoolName'] ?? 'Chưa cập nhật').toString()),
           ],
         ),
         _InfoCard(
