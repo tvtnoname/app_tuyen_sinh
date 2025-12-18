@@ -135,7 +135,7 @@ class User {
 
     return User(
       id: parseInt(src['userId'] ?? src['user_id'] ?? src['id']),
-      userName: src['userName'] ?? src['user_name'] ?? src['username'] ?? src['user']?.toString(),
+      userName: src['userName'] ?? src['user_name'] ?? src['username'] ?? src['student_id'] ?? src['studentId'] ?? src['user']?.toString(),
       fullName: src['fullName'] ?? src['full_name'] ?? src['fullname'] ?? src['name'],
       email: src['email'] ?? src['mail'],
       phone: src['phone'] ?? src['telephone'] ?? src['mobile'],

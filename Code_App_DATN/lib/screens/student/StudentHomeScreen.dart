@@ -184,11 +184,8 @@ class _DraggableChatButtonState extends State<DraggableChatButton> {
                       width: 70, // Restored to 70
                       height: 70,
                       decoration: const BoxDecoration(
+                        color: Color(0xFFE3F2FD),
                         shape: BoxShape.circle,
-                        image: DecorationImage(
-                          image: AssetImage('assets/images/chat_bot.png'),
-                          fit: BoxFit.cover,
-                        ),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black26,
@@ -197,6 +194,7 @@ class _DraggableChatButtonState extends State<DraggableChatButton> {
                           ),
                         ],
                       ),
+                      child: const Icon(Icons.support_agent_rounded, size: 40, color: Color(0xFF1976D2)),
                     ),
                   ),
                 ),

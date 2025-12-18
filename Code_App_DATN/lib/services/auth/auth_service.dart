@@ -100,6 +100,13 @@ class AuthService {
       } else if (token != null) {
         await _saveToken(token);
       }
+      
+      // Cập nhật ID cho ChatBot ngay khi đăng nhập thành công
+      if (user.id != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('chat_user_id', user.id.toString());
+        print('Header: Đã cập nhật chat_user_id = ${user.id}');
+      }
 
       return user;
     }
@@ -129,6 +136,14 @@ class AuthService {
       }
 
       await _saveToken(token);
+
+      // Cập nhật ID cho ChatBot ngay khi đăng nhập thành công
+      if (user.id != null) {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('chat_user_id', user.id.toString());
+        print('Header: Đã cập nhật chat_user_id = ${user.id}');
+      }
+
       return user;
     }
 
